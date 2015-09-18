@@ -125,8 +125,11 @@ static SEBURLFilter *sharedSEBURLFilter = nil;
         [self.permittedList addObject:expression];
     }
     
-    // Convert these rules and add them to the XULRunner seb keys
-    [self createSebRuleLists];
+    if(self.enableURLFilter)
+    {
+      // Convert these rules and add them to the XULRunner seb keys
+      [self createSebRuleLists];
+    }
     
     // Updating filter rules worked; don't return any NSError
     return nil;

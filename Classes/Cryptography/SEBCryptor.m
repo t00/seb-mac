@@ -315,13 +315,12 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
                                                                         error:&error];
 //    NSData *archivedPrefs = [NSJSONSerialization dataWithJSONObject:prefsDict options:0 error:&error];
     NSData *HMACData;
+#ifdef DEBUG
+    DDLogVerbose(@"LocalPrefDictionary XML plist: %@", [[NSString alloc] initWithData:archivedPrefs encoding:NSUTF8StringEncoding]);
+#endif
     if (error || !archivedPrefs) {
         // Serialization of the XML plist went wrong
         DDLogError(@"%s: Serialization of the XML plist went wrong! Error: %@", __FUNCTION__, error.description);
-#ifdef DEBUG
-        DDLogVerbose(@"LocalPrefDictionary XML plist: %@", [[NSString alloc] initWithData:archivedPrefs encoding:NSUTF8StringEncoding]);
-#endif
-        
         // Pref key is empty
         HMACData = [NSData data];
     } else {
@@ -369,6 +368,18 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
     CC_SHA256(inputData.bytes,
               inputData.length,
               hashedChars);
+//    NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
+//    NSData *HMACKey = [preferences secureDataForKey:@"org_safeexambrowser_SEB_examKeySalt"];
+//    CCHmac(kCCHmacAlgSHA256, HMACKey.bytes, HMACKey.length, inputData.bytes, inputData.length, hashedChars);
+    
+#ifdef DEBUG
+//    NSMutableString* hashedString = [[NSMutableString alloc] init];
+//    for (int i = 0 ; i < 32 ; ++i) {
+//        [hashedString appendFormat: @"%02x", hashedChars[i]];
+//    }
+//	    DDLogVerbose(@"generateSHAHashForData: %@", hashedString);
+#endif
+    	
     NSData *hashedData = [NSData dataWithBytes:hashedChars length:32];
     return hashedData;
 }
