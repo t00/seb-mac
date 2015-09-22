@@ -371,13 +371,13 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
 //    NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 //    NSData *HMACKey = [preferences secureDataForKey:@"org_safeexambrowser_SEB_examKeySalt"];
 //    CCHmac(kCCHmacAlgSHA256, HMACKey.bytes, HMACKey.length, inputData.bytes, inputData.length, hashedChars);
-    
+
 #ifdef DEBUG
-//    NSMutableString* hashedString = [[NSMutableString alloc] init];
-//    for (int i = 0 ; i < 32 ; ++i) {
-//        [hashedString appendFormat: @"%02x", hashedChars[i]];
-//    }
-//	    DDLogVerbose(@"generateSHAHashForData: %@", hashedString);
+    NSMutableString* hashedString = [[NSMutableString alloc] init];
+    for (int i = 0 ; i < 32 ; ++i) {
+        [hashedString appendFormat: @"%02x", hashedChars[i]];
+    }
+	    DDLogVerbose(@"generateSHAHashForData: %@", hashedString);
 #endif
     	
     NSData *hashedData = [NSData dataWithBytes:hashedChars length:32];

@@ -1095,7 +1095,7 @@ willPerformClientRedirectToURL:(NSURL *)URL
         
         NSMutableURLRequest *modifiedRequest = [request mutableCopy];
         
-        NSData *browserExamKey = [preferences secureObjectForKey:@"org_safeexambrowser_currentData"];
+        NSData *browserExamKey = [preferences secureObjectForKey:@"org_safeexambrowser_currentData1"];
         unsigned char hashedChars[32];
         [browserExamKey getBytes:hashedChars length:32];
 
