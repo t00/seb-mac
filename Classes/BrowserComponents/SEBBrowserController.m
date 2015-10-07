@@ -383,14 +383,17 @@
                 NSURL *httpURL = [[NSURL alloc] initWithScheme:@"http" host:url.host path:url.path];
                 sebFileData = [NSData dataWithContentsOfURL:httpURL options:NSDataReadingUncached error:&error];
                 if (error) {
-                    // If that didn't work, we try to download it by https
-                    NSURL *httpsURL = [[NSURL alloc] initWithScheme:@"https" host:url.host path:url.path];
-                    sebFileData = [NSData dataWithContentsOfURL:httpsURL options:NSDataReadingUncached error:&error];
-                    // Still couldn't download the .seb file: present an error and abort
-                    if (error) {
-                        [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
-                        return;
-                    }
+                    [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
+                    return;
+                }
+            } else if([url.scheme isEqualToString:@"sebs"]) {
+                // If that didn't work, we try to download it by https
+                NSURL *httpsURL = [[NSURL alloc] initWithScheme:@"https" host:url.host path:url.path];
+                sebFileData = [NSData dataWithContentsOfURL:httpsURL options:NSDataReadingUncached error:&error];
+                // Still couldn't download the .seb file: present an error and abort
+                if (error) {
+                    [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
+                    return;
                 }
             } else {
                 sebFileData = [NSData dataWithContentsOfURL:url options:NSDataReadingUncached error:&error];
