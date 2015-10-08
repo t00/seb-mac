@@ -52,6 +52,7 @@
 #import "SEBCryptor.h"
 #import "SEBKeychainManager.h"
 #import "SEBConfigFileManager.h"
+#import "Constants.h"
 
 @interface NSUserDefaults (SEBEncryptedUserDefaultsPrivate)
 
@@ -440,7 +441,7 @@ static NSNumber *_logLevel;
                                  @"org_safeexambrowser_SEB_showTaskBar",
                                  @YES,
                                  @"org_safeexambrowser_SEB_showTime",
-                                 @"http://www.safeexambrowser.org",
+                                 [NSString stringWithString:defaultBrowserUrl],
                                  @"org_safeexambrowser_SEB_startURL",
                                  [NSNumber numberWithLong:40],
                                  @"org_safeexambrowser_SEB_taskBarHeight",

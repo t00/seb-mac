@@ -244,6 +244,7 @@ enum {
 };
 typedef NSUInteger SEBZoomModes;
 
+static NSString __unused *defaultBrowserUrl = @"http://www.safeexambrowser.org";
 
 static NSString __unused *userDefaultsMasala = @"Di𝈭l𝈖Ch𝈒ah𝉇t𝈁a𝉈Hai1972";
 
