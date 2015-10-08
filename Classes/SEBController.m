@@ -194,6 +194,8 @@ bool insideMatrix();
         [[MyGlobals sharedMyGlobals] setPreferencesReset:NO];
         [[MyGlobals sharedMyGlobals] setCurrentConfigURL:nil];
         [MyGlobals sharedMyGlobals].reconfiguredWhileStarting = NO;
+        [MyGlobals sharedMyGlobals].notConfiguredWhileStarting = NO;
+        
         
         [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
         DDLogDebug(@"Installed get URL event handler");
@@ -658,10 +660,20 @@ bool insideMatrix();
             {
 //                [[NSNotificationCenter defaultCenter]
 //                 postNotificationName:@"requestQuitNotification" object:self];
-                [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 3];
+                [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 0];
             }
                 
         }
+    }
+    
+    if([MyGlobals sharedMyGlobals].notConfiguredWhileStarting)
+    {
+        NSAlert *newAlert = [[NSAlert alloc] init];
+        [newAlert setMessageText:NSLocalizedString(@"SEB Not configured", nil)];
+        [newAlert setInformativeText:NSLocalizedString(@"SEB Configuration not found. Please open configuration file or address to open SEB.", nil)];
+        [newAlert addButtonWithTitle:NSLocalizedString(@"Quit", nil)];
+        [newAlert runModal];
+        [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 0];
     }
     
     // Set flag that SEB is initialized: Now showing alerts is allowed

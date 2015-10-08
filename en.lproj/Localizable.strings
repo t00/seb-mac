@@ -430,3 +430,8 @@
 /* No comment provided by engineer. */
 "You should either enter a password or choose a cryptographic identity to encrypt the SEB settings file.\n\nYou can save an unencrypted settings file, but this is not recommended for use in exams." = "You should either enter a password or choose a cryptographic identity to encrypt the SEB settings file.\n\nYou can save an unencrypted settings file, but this is not recommended for use in exams.";
 
+/* No comment provided by engineer. */
+"SEB Not configured" = "SEB Not configured";
+
+/* No comment provided by engineer. */
+"SEB Configuration not found. Please open configuration file or address to open SEB." = "SEB Configuration not found. Please open configuration file or address to open SEB.";

@@ -226,6 +226,10 @@
     
     // Load start URL from the system's user defaults
     NSString *urlText = [preferences secureStringForKey:@"org_safeexambrowser_SEB_startURL"];
+    if([urlText length] == 0)
+    {
+        [MyGlobals sharedMyGlobals].notConfiguredWhileStarting = YES;
+    }
     
     // Save the default user agent of the installed WebKit version
     NSString *customUserAgent = [self.webView userAgentForURL:[NSURL URLWithString:urlText]];
