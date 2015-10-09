@@ -113,7 +113,11 @@ bool insideMatrix();
 //
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
-    NSURL *sebFileURL = [NSURL fileURLWithPath:filename];
+    NSURL *sebFileURL = [NSURL URLWithString:filename];
+    if([sebFileURL.scheme length] == 0 || [sebFileURL.scheme isEqualToString:@"file"])
+    {
+        sebFileURL = [NSURL fileURLWithPath:filename];
+    }
 
     DDLogInfo(@"Open file event: Loading .seb settings file with URL %@",sebFileURL);
 
@@ -138,7 +142,7 @@ bool insideMatrix();
             return YES;
         }
         
-        NSData *sebData = [NSData dataWithContentsOfURL:sebFileURL];
+        NSData *sebData = [self.browserController downloadSebConfigFromURL:sebFileURL];
         
         SEBConfigFileManager *configFileManager = [[SEBConfigFileManager alloc] init];
         
@@ -194,7 +198,6 @@ bool insideMatrix();
         [[MyGlobals sharedMyGlobals] setPreferencesReset:NO];
         [[MyGlobals sharedMyGlobals] setCurrentConfigURL:nil];
         [MyGlobals sharedMyGlobals].reconfiguredWhileStarting = NO;
-        [MyGlobals sharedMyGlobals].notConfiguredWhileStarting = NO;
         
         
         [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
@@ -660,20 +663,23 @@ bool insideMatrix();
             {
 //                [[NSNotificationCenter defaultCenter]
 //                 postNotificationName:@"requestQuitNotification" object:self];
-                [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 0];
+                [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 1];
+                return;
             }
                 
         }
     }
     
-    if([MyGlobals sharedMyGlobals].notConfiguredWhileStarting)
+    NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
+    if([[preferences secureStringForKey:@"org_safeexambrowser_SEB_startURL"] length] == 0)
     {
         NSAlert *newAlert = [[NSAlert alloc] init];
         [newAlert setMessageText:NSLocalizedString(@"SEB Not configured", nil)];
         [newAlert setInformativeText:NSLocalizedString(@"SEB Configuration not found. Please open configuration file or address to open SEB.", nil)];
         [newAlert addButtonWithTitle:NSLocalizedString(@"Quit", nil)];
         [newAlert runModal];
-        [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 0];
+        [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 1];
+        return;
     }
     
     // Set flag that SEB is initialized: Now showing alerts is allowed

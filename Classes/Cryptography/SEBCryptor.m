@@ -185,7 +185,7 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
 - (void) updateExamSettingsKey:(NSDictionary *)settings
 {
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
-    [preferences setSecureObject:[self checksumForLocalPrefDictionary:settings]
+    [preferences setSecureObject:[self checksumForLocalPrefDictionary:settings afterChange: TRUE]
                    forKey:@"org_safeexambrowser_currentData1"];
 }
 
@@ -302,7 +302,7 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
 }
 
 
-- (NSData *)checksumForLocalPrefDictionary:(NSDictionary *)prefsDict
+- (NSData *)checksumForLocalPrefDictionary:(NSDictionary *)prefsDict afterChange:(BOOL)afterChange
 {
     NSMutableDictionary *cleanedPrefs = [NSMutableDictionary dictionaryWithDictionary:prefsDict];
     [cleanedPrefs removeObjectForKey:@"examKeySalt"];
@@ -316,7 +316,10 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
 //    NSData *archivedPrefs = [NSJSONSerialization dataWithJSONObject:prefsDict options:0 error:&error];
     NSData *HMACData;
 #ifdef DEBUG
-    DDLogVerbose(@"LocalPrefDictionary XML plist: %@", [[NSString alloc] initWithData:archivedPrefs encoding:NSUTF8StringEncoding]);
+    if(!afterChange)
+    {
+        DDLogVerbose(@"LocalPrefDictionary XML plist: %@", [[NSString alloc] initWithData:archivedPrefs encoding:NSUTF8StringEncoding]);
+    }
 #endif
     if (error || !archivedPrefs) {
         // Serialization of the XML plist went wrong

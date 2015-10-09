@@ -226,11 +226,6 @@
     
     // Load start URL from the system's user defaults
     NSString *urlText = [preferences secureStringForKey:@"org_safeexambrowser_SEB_startURL"];
-    if([urlText length] == 0)
-    {
-        [MyGlobals sharedMyGlobals].notConfiguredWhileStarting = YES;
-    }
-    
     // Save the default user agent of the installed WebKit version
     NSString *customUserAgent = [self.webView userAgentForURL:[NSURL URLWithString:urlText]];
     [[MyGlobals sharedMyGlobals] setValue:customUserAgent forKey:@"defaultUserAgent"];
@@ -379,32 +374,8 @@
                             NSLocalizedString(@"OK", nil), nil, nil);
         } else {
             // SEB isn't in exam mode: reconfiguring it is allowed
-            NSError *error = nil;
-            NSData *sebFileData;
-            // Download the .seb file directly into memory (not onto disc like other files)
-            if ([url.scheme isEqualToString:@"seb"]) {
-                // If it's a seb:// URL, we try to download it by http
-                NSURL *httpURL = [[NSURL alloc] initWithScheme:@"http" host:url.host path:url.path];
-                sebFileData = [NSData dataWithContentsOfURL:httpURL options:NSDataReadingUncached error:&error];
-                if (error) {
-                    [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
-                    return;
-                }
-            } else if([url.scheme isEqualToString:@"sebs"]) {
-                // If that didn't work, we try to download it by https
-                NSURL *httpsURL = [[NSURL alloc] initWithScheme:@"https" host:url.host path:url.path];
-                sebFileData = [NSData dataWithContentsOfURL:httpsURL options:NSDataReadingUncached error:&error];
-                // Still couldn't download the .seb file: present an error and abort
-                if (error) {
-                    [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
-                    return;
-                }
-            } else {
-                sebFileData = [NSData dataWithContentsOfURL:url options:NSDataReadingUncached error:&error];
-                if (error) {
-                    [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
-                }
-            }
+            NSData *sebFileData = [self downloadSebConfigFromURL:url];
+            
             SEBConfigFileManager *configFileManager = [[SEBConfigFileManager alloc] init];
             
             // Get current config path
@@ -426,6 +397,34 @@
     }
 }
 
+- (NSData *) downloadSebConfigFromURL:(NSURL *)url
+{
+    NSData *sebFileData = nil;
+    NSError *error = nil;
+    // Download the .seb file directly into memory (not onto disc like other files)
+    if ([url.scheme isEqualToString:@"seb"]) {
+        // If it's a seb:// URL, we try to download it by http
+        NSURL *httpURL = [[NSURL alloc] initWithScheme:@"http" host:url.host path:url.path];
+        sebFileData = [NSData dataWithContentsOfURL:httpURL options:NSDataReadingUncached error:&error];
+        if (error) {
+            [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
+        }
+    } else if([url.scheme isEqualToString:@"sebs"]) {
+        // If that didn't work, we try to download it by https
+        NSURL *httpsURL = [[NSURL alloc] initWithScheme:@"https" host:url.host path:url.path];
+        sebFileData = [NSData dataWithContentsOfURL:httpsURL options:NSDataReadingUncached error:&error];
+        // Still couldn't download the .seb file: present an error and abort
+        if (error) {
+            [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
+        }
+    } else {
+        sebFileData = [NSData dataWithContentsOfURL:url options:NSDataReadingUncached error:&error];
+        if (error) {
+            [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
+        }
+    }
+    return sebFileData;
+}
 
 // Set web page title for a window/WebView
 - (void) setTitle:(NSString *)title forWindow:(SEBBrowserWindow *)browserWindow withWebView:(SEBWebView *)webView

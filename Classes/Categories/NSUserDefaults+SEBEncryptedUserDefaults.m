@@ -508,7 +508,7 @@ static NSNumber *_logLevel;
         } else {
             currentUserDefaults = [[NSMutableDictionary alloc] initWithDictionary:sebUserDefaults copyItems:YES];
             // Generate Exam Settings Key
-            NSData *examSettingsKey = [sharedSEBCryptor checksumForLocalPrefDictionary:currentUserDefaults];
+            NSData *examSettingsKey = [sharedSEBCryptor checksumForLocalPrefDictionary:currentUserDefaults afterChange:FALSE];
             // If exam settings are corrupted
             if ([sharedSEBCryptor checkExamSettings:examSettingsKey] == false) {
                 // Delete all corrupted settings

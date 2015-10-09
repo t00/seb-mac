@@ -54,7 +54,6 @@
 @property(readwrite) BOOL preferencesReset;
 @property(readwrite) BOOL transitioningToFullscreen;
 @property(readwrite) BOOL reconfiguredWhileStarting;
-@property(readwrite) BOOL notConfiguredWhileStarting;
 @property(readwrite) BOOL shouldGoFullScreen;
 @property(readwrite) NSUInteger logLevel;
 @property(copy, readwrite) NSString *defaultUserAgent;
