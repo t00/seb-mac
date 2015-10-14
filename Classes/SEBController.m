@@ -113,13 +113,15 @@ bool insideMatrix();
 //
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
+    BOOL isFromFile = false;
     NSURL *sebFileURL = [NSURL URLWithString:filename];
     if([sebFileURL.scheme length] == 0 || [sebFileURL.scheme isEqualToString:@"file"])
     {
         sebFileURL = [NSURL fileURLWithPath:filename];
+        isFromFile = true;
     }
 
-    DDLogInfo(@"Open file event: Loading .seb settings file with URL %@",sebFileURL);
+    DDLogInfo(@"Open file event: Loading .seb settings file with URL %@", sebFileURL);
 
     [[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
 
@@ -142,22 +144,34 @@ bool insideMatrix();
             return YES;
         }
         
-        NSData *sebData = [self.browserController downloadSebConfigFromURL:sebFileURL];
+        NSError *error = nil;
+        NSData *sebData = [self.browserController downloadSebConfigFromURL:sebFileURL error:&error];
+
+        if(error) {
+            [self.browserController.mainBrowserWindow presentError:error modalForWindow:self.browserController.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
+        }
+        else {
+            SEBConfigFileManager *configFileManager = [[SEBConfigFileManager alloc] init];
         
-        SEBConfigFileManager *configFileManager = [[SEBConfigFileManager alloc] init];
+            // Get current config path
+            NSURL *currentConfigPath = [[MyGlobals sharedMyGlobals] currentConfigURL];
+            if(isFromFile)
+            {
+                // Save the path to the file for possible editing in the preferences window
+                [[MyGlobals sharedMyGlobals] setCurrentConfigURL:sebFileURL];
+            }
         
-        // Get current config path
-        NSURL *currentConfigPath = [[MyGlobals sharedMyGlobals] currentConfigURL];
-        // Save the path to the file for possible editing in the preferences window
-        [[MyGlobals sharedMyGlobals] setCurrentConfigURL:sebFileURL];
-        
-        // Decrypt and store the .seb config file
-        if ([configFileManager storeDecryptedSEBSettings:sebData forEditing:NO]) {
-            // if successfull restart with new settings
-            [self requestedRestart:nil];
-        } else {
-            // if decrypting new settings wasn't successfull, we have to restore the path to the old settings
-            [[MyGlobals sharedMyGlobals] setCurrentConfigURL:currentConfigPath];
+            // Decrypt and store the .seb config file
+            if ([configFileManager storeDecryptedSEBSettings:sebData forEditing:NO]) {
+                    // if successfull restart with new settings
+                    [self requestedRestart:nil];
+            } else {
+                if(isFromFile)
+                {
+                    // if decrypting new settings wasn't successfull, we have to restore the path to the old settings
+                    [[MyGlobals sharedMyGlobals] setCurrentConfigURL:currentConfigPath];
+                }
+            }
         }
     }
     
@@ -170,7 +184,7 @@ bool insideMatrix();
     NSString *urlString = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
     NSURL *url = [NSURL URLWithString:urlString];
     if (url) {
-        if ([url.pathExtension isEqualToString:@"seb"]) {
+        if ([url.scheme isEqualToString:@"seb"] || [url.scheme isEqualToString:@"sebs"]) {
             // If we have a valid URL with the path for a .seb file, we download and open it (conditionally)
             DDLogInfo(@"Get URL event: Loading .seb settings file with URL %@", urlString);
             [self.browserController downloadAndOpenSebConfigFromURL:url];
@@ -669,7 +683,7 @@ bool insideMatrix();
                 
         }
     }
-    
+
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
     if([[preferences secureStringForKey:@"org_safeexambrowser_SEB_startURL"] length] == 0)
     {
@@ -681,7 +695,7 @@ bool insideMatrix();
         [self performSelector:@selector(requestedQuit:) withObject: nil afterDelay: 1];
         return;
     }
-    
+
     // Set flag that SEB is initialized: Now showing alerts is allowed
     [[MyGlobals sharedMyGlobals] setFinishedInitializing:YES];
 }
@@ -852,6 +866,7 @@ bool insideMatrix(){
 
 // Open background windows on all available screens to prevent Finder becoming active when clicking on the desktop background
 - (void) coverScreens {
+    return;
     // Open background windows on all available screens to prevent Finder becoming active when clicking on the desktop background
     NSArray *screens = [NSScreen screens];	// get all available screens
     if (!self.capWindows) {
@@ -1351,6 +1366,8 @@ bool insideMatrix(){
         modalDelegate: nil
        didEndSelector: nil
           contextInfo: nil];
+    [enterPasswordDialogWindow setOrderedIndex:0];
+    [enterPasswordDialogWindow makeKeyAndOrderFront:enterPasswordDialogWindow];
     NSInteger returnCode = [NSApp runModalForWindow: enterPasswordDialogWindow];
     // Dialog is up here.
     [NSApp endSheet: enterPasswordDialogWindow];

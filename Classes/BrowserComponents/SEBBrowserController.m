@@ -75,7 +75,7 @@
         overrideUserAgent = [preferences secureStringForKey:@"org_safeexambrowser_SEB_browserUserAgentMacCustom"];
     }
     // Add "SEB <version number>" to the browser's user agent, so the LMS SEB plugins recognize us
-    overrideUserAgent = [overrideUserAgent stringByAppendingString:[NSString stringWithFormat:@" SEB %@", versionString]];
+    overrideUserAgent = [overrideUserAgent stringByAppendingString:[NSString stringWithFormat:@" SEB/%@", versionString]];
     [webView setCustomUserAgent:overrideUserAgent];
     
     DDLogDebug(@"Testing if WebStorageManager respondsToSelector:@selector(_storageDirectoryPath)");
@@ -373,15 +373,24 @@
                             NSLocalizedString(@"SEB is already running in exam mode and it is not allowed to interupt this by starting another exam. Finish the exam and quit SEB before starting another exam.", nil),
                             NSLocalizedString(@"OK", nil), nil, nil);
         } else {
+            NSError *error = nil;
             // SEB isn't in exam mode: reconfiguring it is allowed
-            NSData *sebFileData = [self downloadSebConfigFromURL:url];
+            NSData *sebFileData = [self downloadSebConfigFromURL:url error:&error];
             
+            if(error) {
+                 [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
+            }
+            
+            BOOL isFromFile = [url.scheme length] == 0 || [url.scheme isEqualToString:@"file"];
             SEBConfigFileManager *configFileManager = [[SEBConfigFileManager alloc] init];
             
             // Get current config path
             NSURL *currentConfigPath = [[MyGlobals sharedMyGlobals] currentConfigURL];
-            // Store the URL of the .seb file as current config file path
-            [[MyGlobals sharedMyGlobals] setCurrentConfigURL:[NSURL URLWithString:url.lastPathComponent]]; // absoluteString]];
+            if(isFromFile)
+            {
+                // Store the URL of the .seb file as current config file path
+                [[MyGlobals sharedMyGlobals] setCurrentConfigURL:[NSURL URLWithString:url.lastPathComponent]]; // absoluteString]];
+            }
             
             if ([configFileManager storeDecryptedSEBSettings:sebFileData forEditing:NO]) {
                 
@@ -390,38 +399,40 @@
                  postNotificationName:@"requestRestartNotification" object:self];
                 
             } else {
-                // if decrypting new settings wasn't successfull, we have to restore the path to the old settings
-                [[MyGlobals sharedMyGlobals] setCurrentConfigURL:currentConfigPath];
+                if(isFromFile)
+                {
+                    // if decrypting new settings wasn't successfull, we have to restore the path to the old settings
+                    [[MyGlobals sharedMyGlobals] setCurrentConfigURL:currentConfigPath];
+                }
             }
         }
     }
 }
 
-- (NSData *) downloadSebConfigFromURL:(NSURL *)url
+- (NSData *) downloadSebConfigFromURL:(NSURL *)url error:(NSError **)error
 {
     NSData *sebFileData = nil;
-    NSError *error = nil;
     // Download the .seb file directly into memory (not onto disc like other files)
     if ([url.scheme isEqualToString:@"seb"]) {
         // If it's a seb:// URL, we try to download it by http
         NSURL *httpURL = [[NSURL alloc] initWithScheme:@"http" host:url.host path:url.path];
-        sebFileData = [NSData dataWithContentsOfURL:httpURL options:NSDataReadingUncached error:&error];
-        if (error) {
-            [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
-        }
-    } else if([url.scheme isEqualToString:@"sebs"]) {
+        sebFileData = [NSData dataWithContentsOfURL:httpURL options:NSDataReadingUncached error:error];
+    }
+    else if([url.scheme isEqualToString:@"sebs"]) {
         // If that didn't work, we try to download it by https
         NSURL *httpsURL = [[NSURL alloc] initWithScheme:@"https" host:url.host path:url.path];
-        sebFileData = [NSData dataWithContentsOfURL:httpsURL options:NSDataReadingUncached error:&error];
+        sebFileData = [NSData dataWithContentsOfURL:httpsURL options:NSDataReadingUncached error:error];
         // Still couldn't download the .seb file: present an error and abort
-        if (error) {
-            [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
-        }
-    } else {
-        sebFileData = [NSData dataWithContentsOfURL:url options:NSDataReadingUncached error:&error];
-        if (error) {
-            [self.mainBrowserWindow presentError:error modalForWindow:self.mainBrowserWindow delegate:nil didPresentSelector:NULL contextInfo:NULL];
-        }
+    }
+    else {
+        sebFileData = [NSData dataWithContentsOfURL:url options:NSDataReadingUncached error:error];
+    }
+    if (*error) {
+#ifdef DEBUG
+        DDLogVerbose(@"Open config %@, error: %@", [url absoluteString], [*error description]);
+#else
+        DDLogError(@"Open config %@, error: %@", [url absoluteString], [*error description]);
+#endif
     }
     return sebFileData;
 }

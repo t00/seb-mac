@@ -199,7 +199,7 @@
 
         DDLogInfo(@"Should display dialog SEB Re-Configured");
 
-        if (!forceConfiguringClient) {
+        if ((!forceConfiguringClient) && (([preferences secureBoolForKey:@"org_safeexambrowser_SEB_storeConfig"] == NO))) {
             if ([[MyGlobals sharedMyGlobals] finishedInitializing]) {
                 NSAlert *newAlert = [[NSAlert alloc] init];
                 [newAlert setMessageText:NSLocalizedString(@"SEB Re-Configured", nil)];
@@ -210,11 +210,11 @@
                 switch(answer)
                 {
                     case NSAlertFirstButtonReturn:
-                        
+                    
                         break; //Continue running SEB
-                        
+                      
                     case NSAlertSecondButtonReturn:
-                        
+                     
                         self.sebController.quittingMyself = TRUE; //SEB is terminating itself
                         [NSApp terminate: nil]; //quit SEB
                 }

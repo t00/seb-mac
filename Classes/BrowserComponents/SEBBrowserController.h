@@ -66,7 +66,7 @@
 - (void) openURLString:(NSString *)urlText withSEBUserAgentInWebView:(SEBWebView *)webView;
 - (void) openResourceWithURL:(NSString *)URL andTitle:(NSString *)title;
 - (void) downloadAndOpenSebConfigFromURL:(NSURL *)url;
-- (NSData *) downloadSebConfigFromURL:(NSURL *)url;
+- (NSData *) downloadSebConfigFromURL:(NSURL *)url error:(NSError **)error;
 
 - (void) setTitle:(NSString *)title forWindow:(SEBBrowserWindow *)browserWindow withWebView:(SEBWebView *)webView;
 - (void) setStateForWindow:(SEBBrowserWindow *)browserWindow withWebView:(SEBWebView *)webView;

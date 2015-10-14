@@ -40,6 +40,7 @@
 #import "WebKit+WebKitExtensions.h"
 #import "SEBURLFilter.h"
 #import "NSURL+KKDomain.h"
+#import "Constants.h"
 
 #include <CoreServices/CoreServices.h>
 
@@ -957,7 +958,8 @@ willPerformClientRedirectToURL:(NSURL *)URL
     if (frame == [sender mainFrame]){
         [self.browserController setTitle: title forWindow:self withWebView:sender];
         NSString* versionString = [[MyGlobals sharedMyGlobals] infoValueForKey:@"CFBundleShortVersionString"];
-        NSString* appTitleString = [NSString stringWithFormat:@"Safe Exam Browser %@  —  %@",
+        NSString* appTitleString = [NSString stringWithFormat:@"%@ %@  —  %@",
+                                    NSLocalizedString(@"Safe Exam Browser",nil),
                                     versionString,
                                     title];
         CGFloat windowWidth = [NSWindow minFrameWidthWithTitle:appTitleString styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask];

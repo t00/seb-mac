@@ -187,7 +187,9 @@ static NSNumber *_logLevel;
                                  @"org_safeexambrowser_SEB_chooseFileToUploadPolicy",
                                  @YES,
                                  @"org_safeexambrowser_SEB_createNewDesktop",
-//                                 [NSData data], // public key hash of cryptoIdentity selected/used for encryption 
+                                 @NO,
+                                 @"org_safeexambrowser_SEB_storeConfig",
+//                                 [NSData data], // public key hash of cryptoIdentity selected/used for encryption
 //                                 @"org_safeexambrowser_SEB_cryptoIdentity",
                                  //@"~/Downloads",
                                  @YES,
