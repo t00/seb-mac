@@ -1738,7 +1738,7 @@ bool insideMatrix(){
     // Open new browser window containing WebView and show it
     SEBWebView *newWebView = [self.browserController openAndShowWebView];
     // Load manual page URL in new browser window
-    NSString *urlText = @"http://www.safeexambrowser.org/macosx";
+    NSString *urlText = helpUrl;
 	[[newWebView mainFrame] loadRequest:
      [NSURLRequest requestWithURL:[NSURL URLWithString:urlText]]];
 }
@@ -1767,7 +1767,6 @@ bool insideMatrix(){
 		return NSTerminateCancel; //this we can't allow, sorry...
 	}
 }
-
 
 // Called just before SEB will be terminated
 - (void) applicationWillTerminate:(NSNotification *)aNotification

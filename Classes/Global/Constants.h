@@ -246,6 +246,8 @@ typedef NSUInteger SEBZoomModes;
 
 static NSString __unused *defaultBrowserUrl = @"http://www.safeexambrowser.org";
 
+static NSString __unused *helpUrl = @"http://www.safeexambrowser.org/macosx";
+
 static NSString __unused *userDefaultsMasala = @"Di𝈭l𝈖Ch𝈒ah𝉇t𝈁a𝉈Hai1972";
 
 static NSString __unused *sebErrorDomain = @"org.safeexambrowser.SEBCryptor";
