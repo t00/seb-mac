@@ -307,6 +307,11 @@
             if (forEditing && *sebFilePasswordPtr) {
                 password = *sebFilePasswordPtr;
             } else {
+                if([MyGlobals sharedMyGlobals].isInitializing)
+                {
+                    // cannot show password dialog when initializing as it can appear under browser screen
+                    return nil;
+                }
                 if ([self.sebController showEnterPasswordDialog:enterPasswordString modalForWindow:nil windowTitle:NSLocalizedString(@"Loading Settings",nil)] == SEBEnterPasswordCancel) {
                     return nil;
                 }

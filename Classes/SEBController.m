@@ -212,6 +212,7 @@ bool insideMatrix();
         [[MyGlobals sharedMyGlobals] setPreferencesReset:NO];
         [[MyGlobals sharedMyGlobals] setCurrentConfigURL:nil];
         [MyGlobals sharedMyGlobals].reconfiguredWhileStarting = NO;
+        [MyGlobals sharedMyGlobals].isInitializing = YES;
         
         
         [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
@@ -631,6 +632,7 @@ bool insideMatrix();
 // Perform actions which require that SEB has finished setting up and has opened its windows
 - (void) performAfterStartActions:(NSNotification *)notification
 {
+    [MyGlobals sharedMyGlobals].isInitializing = NO;
     DDLogInfo(@"Performing after start actions");
     
     // Check for command key being held down
