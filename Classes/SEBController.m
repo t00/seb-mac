@@ -1211,7 +1211,13 @@ bool insideMatrix(){
         self.dockController = [[SEBDockController alloc] init];
         
         if ([preferences secureBoolForKey:@"org_safeexambrowser_SEB_enableSebBrowser"]) {
-            SEBDockItem *dockItemSEB = [[SEBDockItem alloc] initWithTitle:NSLocalizedString(@"Safe Exam Browser",nil)
+            NSString* versionString = [[MyGlobals sharedMyGlobals] infoValueForKey:@"CFBundleShortVersionString"];
+            NSString* buildString = [[MyGlobals sharedMyGlobals] infoValueForKey:@"CFBundleVersion"];
+            NSString* titleString = [NSString stringWithFormat:@"%@ %@.%@",
+                                        NSLocalizedString(@"Safe Exam Browser",nil),
+                                        versionString,
+                                        buildString];
+            SEBDockItem *dockItemSEB = [[SEBDockItem alloc] initWithTitle:titleString
                                                                      icon:[NSApp applicationIconImage]
                                                                   toolTip:nil
                                                                      menu:self.browserController.openBrowserWindowsWebViewsMenu
