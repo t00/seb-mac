@@ -48,6 +48,7 @@
 }
 
 @property (assign) NSRect frameForNonFullScreenMode;
+@property (weak) IBOutlet NSView *rootView;
 @property (weak) IBOutlet SEBWebView *webView;
 @property(weak) SEBBrowserController *browserController;
 

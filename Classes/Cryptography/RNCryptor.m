@@ -29,7 +29,7 @@
 #import <Security/SecRandom.h>
 #import <fcntl.h>
 
-extern int SecRandomCopyBytes(SecRandomRef rnd, size_t count, uint8_t *bytes) __attribute__((weak_import));
+extern int SecRandomCopyBytes(SecRandomRef __nullable rnd, size_t count, void *bytes) __attribute__((weak_import));
 extern int
 CCKeyDerivationPBKDF( CCPBKDFAlgorithm algorithm, const char *password, size_t passwordLen,
                      const uint8_t *salt, size_t saltLen,
@@ -365,10 +365,9 @@ static int RN_SecRandomCopyBytes(void *rnd, size_t count, uint8_t *bytes) {
   NSMutableData *data = [NSMutableData dataWithLength:length];
 
   int result;
-  if (SecRandomCopyBytes != NULL) {
+  if (&SecRandomCopyBytes != NULL) {
     result = SecRandomCopyBytes(NULL, length, data.mutableBytes);
-  }
-  else {
+  } else {
     result = RN_SecRandomCopyBytes(NULL, length, data.mutableBytes);
   }
   NSAssert(result == 0, @"Unable to generate random bytes: %d", errno);
