@@ -185,7 +185,7 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
 - (void) updateExamSettingsKey:(NSDictionary *)settings
 {
     NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
-    [preferences setSecureObject:[self checksumForLocalPrefDictionary:settings afterChange: TRUE]
+    [preferences setSecureObject:[self checksumForLocalPrefDictionary:settings afterChange: TRUE addVersionKey: TRUE]
                    forKey:@"org_safeexambrowser_currentData1"];
 }
 
@@ -302,7 +302,7 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
 }
 
 
-- (NSData *)checksumForLocalPrefDictionary:(NSDictionary *)prefsDict afterChange:(BOOL)afterChange
+- (NSData *)checksumForLocalPrefDictionary:(NSDictionary *)prefsDict afterChange:(BOOL)afterChange addVersionKey:(BOOL)addVersionKey
 {
     NSMutableDictionary *cleanedPrefs = [NSMutableDictionary dictionaryWithDictionary:prefsDict];
     [cleanedPrefs removeObjectForKey:@"examKeySalt"];
@@ -328,7 +328,7 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
         HMACData = [NSData data];
     } else {
         // Generate new pref key
-        HMACData = [self generateSHAHashForData:archivedPrefs];
+        HMACData = [self generateSHAHashForData:archivedPrefs addVersionKey:addVersionKey];
     }
     return HMACData;
 }
@@ -366,11 +366,25 @@ static const RNCryptorSettings kSEBCryptorAES256Settings = {
 }
 
 
-- (NSData*) generateSHAHashForData:(NSData *)inputData {
+- (NSData*) generateSHAHashForData:(NSData *)inputData addVersionKey:(BOOL) addVersionKey {
     unsigned char hashedChars[32];
-    CC_SHA256(inputData.bytes,
-              inputData.length,
-              hashedChars);
+
+    if (addVersionKey) {
+        int len = inputData.length;
+        Byte* hashBase = (Byte*)malloc(len + 64);
+        memcpy(hashBase, inputData.bytes, len);
+        NSString* thisVersionKey = @"96A06374AAE73EABBF93BCE82AF7F106E2FBCD366DDBACAE84BA7A51973C836E";
+        memcpy(hashBase + len, [thisVersionKey UTF8String], 64);
+
+        CC_SHA256(hashBase,
+                  len + 64,
+                  hashedChars);
+    } else {
+        CC_SHA256(inputData.bytes,
+            inputData.length,
+            hashedChars);
+    }
+
 //    NSUserDefaults *preferences = [NSUserDefaults standardUserDefaults];
 //    NSData *HMACKey = [preferences secureDataForKey:@"org_safeexambrowser_SEB_examKeySalt"];
 //    CCHmac(kCCHmacAlgSHA256, HMACKey.bytes, HMACKey.length, inputData.bytes, inputData.length, hashedChars);

@@ -55,7 +55,7 @@
 - (BOOL)updateEncryptedUserDefaults:(BOOL)updateUserDefaults updateSalt:(BOOL)generateNewSalt;
 - (BOOL)updateEncryptedUserDefaults:(BOOL)updateUserDefaults updateSalt:(BOOL)generateNewSalt newChecksum:(NSData **)newChecksumPtr;
 - (NSData *)checksumForPrefDictionary:(NSDictionary *)prefsDict;
-- (NSData *)checksumForLocalPrefDictionary:(NSDictionary *)prefsDict afterChange:(BOOL)afterChange;
+- (NSData *)checksumForLocalPrefDictionary:(NSDictionary *)prefsDict afterChange:(BOOL)afterChange addVersionKey:(BOOL)addVersionKey;
 
 - (void)presentPreferencesCorruptedError;
 
